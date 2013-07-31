@@ -62,7 +62,6 @@
     BOOL _didSavePreviousStateOfNavBar;
     
 }
-
 // Private Properties
 @property (nonatomic, retain) UIColor *previousNavBarTintColor;
 @property (nonatomic, retain) UIBarButtonItem *previousViewControllerBackButton;
@@ -131,6 +130,11 @@
 
 // MWPhotoBrowser
 @implementation MWPhotoBrowser
+
+@synthesize  previousButton = _previousButton;
+@synthesize  nextButton = _nextButton;
+@synthesize  actionButton = _actionButton;
+
 
 // Properties
 @synthesize previousNavBarTintColor = _previousNavBarTintColor;
@@ -249,10 +253,16 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     
     // Toolbar Items
-    _previousButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/UIBarButtonItemArrowLeft.png"] style:UIBarButtonItemStylePlain target:self action:@selector(gotoPreviousPage)];
-    _nextButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/UIBarButtonItemArrowRight.png"] style:UIBarButtonItemStylePlain target:self action:@selector(gotoNextPage)];
-    _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
-    
+    if (_previousButton == nil) {
+        _previousButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/UIBarButtonItemArrowLeft.png"] style:UIBarButtonItemStylePlain target:self action:@selector(gotoPreviousPage)];
+    }
+    if (_nextButton == nil) {
+        _nextButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/UIBarButtonItemArrowRight.png"] style:UIBarButtonItemStylePlain target:self action:@selector(gotoNextPage)];
+    }
+    if (_actionButton == nil) {
+        _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+    }
+
     // Update
     [self reloadData];
     
@@ -990,7 +1000,10 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 }
 
 - (void)actionButtonPressed:(id)sender {
-    if (_actionsSheet) {
+    if ([_delegate respondsToSelector:@selector(photoBrowser:actionButtonSelectedForPhotoAtIndex:)]) {
+        [_delegate photoBrowser:self actionButtonSelectedForPhotoAtIndex:_currentPageIndex];
+    }
+    else if (_actionsSheet) {
         // Dismiss
         [_actionsSheet dismissWithClickedButtonIndex:_actionsSheet.cancelButtonIndex animated:YES];
     } else {
